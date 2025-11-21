@@ -39,20 +39,28 @@ npm run lint
 - `lib/supabase/middleware.ts` - Middleware client for session refresh
 
 **Role-Based Access Control:**
-- Two roles: `admin` and `agent` (defined in `profiles` table)
+- Two roles: `admin` and `agent` (defined in `helpdesk_profiles` table)
 - Admins: Full access to all tickets, can assign tickets, set priorities, and update statuses
 - Agents: Only see their assigned tickets, can only update ticket status
 - Role checks are enforced both in API routes and dashboard pages
 - Login redirects based on role: admins to `/dashboard`, agents to `/dashboard/agent`
+- **Creating staff users:** Users must be created via Supabase Auth Dashboard, then the trigger automatically creates a profile with role='agent'. Manually update role to 'admin' in the helpdesk_profiles table via SQL Editor.
 
 ### Supabase Database Schema
 
+**IMPORTANT: Table Naming Convention**
+All tables use the `helpdesk_` prefix:
+- `helpdesk_profiles` - User profiles with role (admin/agent)
+- `helpdesk_tickets` - Support tickets
+
 **Tables:**
-- `profiles` - User profiles with role (admin/agent)
+- `helpdesk_profiles` - User profiles with role (admin/agent)
   - RLS enabled: authenticated users can view all profiles, users can update their own
-- `tickets` - Support tickets
+  - Columns: id (UUID, FK to auth.users), email, full_name, role, created_at
+- `helpdesk_tickets` - Support tickets
   - RLS enabled: anonymous users can insert, authenticated users can view/update all
   - Indexes on: status, assigned_to, created_at
+  - Columns: id, title, description, name, email, status, priority, assigned_to (FK to helpdesk_profiles), created_at, updated_at
 
 **Ticket Workflow:**
 1. Public users submit tickets via homepage form (no auth required)
@@ -96,6 +104,8 @@ All API routes follow this pattern:
 **Server Actions:**
 - Login logic in `app/login/actions.ts` uses 'use server'
 - Handles auth and role-based redirects
+- Includes console.log debugging statements (search for `[LOGIN]` prefix in logs)
+- Profile lookup failures return user-friendly error messages
 
 **Type Definitions:**
 - All types centralized in `lib/types.ts`
@@ -128,4 +138,16 @@ When making changes to the database schema, ensure RLS policies are updated acco
 
 ## Docker Deployment
 
-Dockerfile is configured for production deployment. Environment variables must be passed at runtime.
+**Dockerfile Configuration:**
+- Multi-stage build (deps → builder → runner)
+- Uses Node 20 Alpine
+- Output mode: `standalone` (configured in next.config.mjs)
+- Exposes port 3000 internally
+- Environment variables must be passed at runtime via Coolify or docker run
+- `public/` directory exists with `.gitkeep` to prevent Docker build errors
+
+**Coolify Deployment:**
+- Build Pack: Dockerfile
+- Port Mapping: Match internal container port (check logs for actual port)
+- Environment variables configured in Coolify UI under "Environment Variables"
+- Both buildtime and runtime availability required for NEXT_PUBLIC_ variables
