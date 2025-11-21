@@ -14,7 +14,7 @@ export default async function AgentDashboardPage() {
 
   // Get user profile to check role
   const { data: profile, error: profileError } = await supabase
-    .from('profiles')
+    .from('helpdesk_profiles')
     .select('role')
     .eq('id', user.id)
     .single()

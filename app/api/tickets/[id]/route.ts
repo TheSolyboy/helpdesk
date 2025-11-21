@@ -22,7 +22,7 @@ export async function PATCH(
 
     // Get user profile to check role
     const { data: profile } = await supabase
-      .from('profiles')
+      .from('helpdesk_profiles')
       .select('role')
       .eq('id', user.id)
       .single()
@@ -56,7 +56,7 @@ export async function PATCH(
 
     // Update ticket
     const { data: ticket, error: updateError } = await supabase
-      .from('tickets')
+      .from('helpdesk_tickets')
       .update(updateData)
       .eq('id', id)
       .select()

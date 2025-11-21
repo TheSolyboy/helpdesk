@@ -52,7 +52,7 @@ export default function TicketList({ isAdmin }: TicketListProps) {
   async function fetchAgents() {
     try {
       const { data, error } = await supabase
-        .from('profiles')
+        .from('helpdesk_profiles')
         .select('*')
         .in('role', ['admin', 'agent'])
 

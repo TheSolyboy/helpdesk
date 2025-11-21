@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
 
     // Insert ticket into Supabase
     const { data: ticket, error: dbError } = await supabase
-      .from('tickets')
+      .from('helpdesk_tickets')
       .insert({
         name,
         email,
@@ -91,7 +91,7 @@ export async function GET() {
 
     // Get user profile to check role
     const { data: profile } = await supabase
-      .from('profiles')
+      .from('helpdesk_profiles')
       .select('role')
       .eq('id', user.id)
       .single()
@@ -105,7 +105,7 @@ export async function GET() {
 
     // Get tickets based on role
     let query = supabase
-      .from('tickets')
+      .from('helpdesk_tickets')
       .select('*')
       .order('created_at', { ascending: false })
 
