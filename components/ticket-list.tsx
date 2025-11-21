@@ -31,6 +31,7 @@ export default function TicketList({ isAdmin }: TicketListProps) {
     if (isAdmin) {
       fetchAgents()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   async function fetchTickets() {

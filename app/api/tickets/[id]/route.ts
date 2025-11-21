@@ -35,7 +35,12 @@ export async function PATCH(
     }
 
     // Prepare update data based on role
-    const updateData: any = {}
+    const updateData: {
+      status?: string
+      priority?: string
+      assigned_to?: string | null
+      updated_at?: string
+    } = {}
 
     if (profile.role === 'admin') {
       // Admins can update everything
