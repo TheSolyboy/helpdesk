@@ -8,7 +8,9 @@ import {
   Clock,
   AlertCircle,
   Loader2,
-  LogOut
+  LogOut,
+  Image as ImageIcon,
+  X
 } from 'lucide-react'
 import type { Ticket, Profile, TicketStatus, TicketPriority } from '@/lib/types'
 import { createClient } from '@/lib/supabase/client'
@@ -23,6 +25,7 @@ export default function TicketList({ isAdmin }: TicketListProps) {
   const [agents, setAgents] = useState<Profile[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<TicketStatus | 'all'>('all')
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const router = useRouter()
   const supabase = createClient()
 
@@ -191,6 +194,38 @@ export default function TicketList({ isAdmin }: TicketListProps) {
                         {new Date(ticket.created_at).toLocaleDateString()}
                       </div>
                     </div>
+
+                    {/* Image Attachments */}
+                    {ticket.image_urls && ticket.image_urls.length > 0 && (
+                      <div className="mt-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <ImageIcon className="h-4 w-4 text-gray-600" />
+                          <span className="text-sm text-gray-600 font-medium">
+                            Attachments ({ticket.image_urls.length})
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                          {ticket.image_urls.map((url, imgIndex) => (
+                            <div
+                              key={imgIndex}
+                              className="relative group cursor-pointer"
+                              onClick={() => setSelectedImage(url)}
+                            >
+                              <img
+                                src={url}
+                                alt={`Attachment ${imgIndex + 1}`}
+                                className="w-full h-20 object-cover rounded border border-gray-200 hover:border-blue-500 transition"
+                              />
+                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition rounded flex items-center justify-center">
+                                <span className="text-white text-xs opacity-0 group-hover:opacity-100 transition">
+                                  View
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex flex-col gap-2 ml-4">
@@ -266,6 +301,29 @@ export default function TicketList({ isAdmin }: TicketListProps) {
           )}
         </div>
       </div>
+
+      {/* Image Lightbox Modal */}
+      {selectedImage && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center p-4"
+          onClick={() => setSelectedImage(null)}
+        >
+          <div className="relative max-w-5xl max-h-full">
+            <button
+              onClick={() => setSelectedImage(null)}
+              className="absolute -top-10 right-0 text-white hover:text-gray-300 transition"
+            >
+              <X className="h-8 w-8" />
+            </button>
+            <img
+              src={selectedImage}
+              alt="Full size attachment"
+              className="max-w-full max-h-[90vh] object-contain rounded-lg"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

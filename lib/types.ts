@@ -11,6 +11,7 @@ export interface Ticket {
   status: TicketStatus
   priority: TicketPriority
   assigned_to: string | null
+  image_urls: string[] | null
   created_at: string
   updated_at: string
 }
@@ -28,6 +29,7 @@ export interface TicketFormData {
   email: string
   title: string
   description: string
+  image_urls?: string[]
 }
 
 export interface N8nWebhookPayload {

@@ -5,7 +5,7 @@ import type { TicketFormData, N8nWebhookPayload } from '@/lib/types'
 export async function POST(request: NextRequest) {
   try {
     const body: TicketFormData = await request.json()
-    const { name, email, title, description } = body
+    const { name, email, title, description, image_urls } = body
 
     // Validate input
     if (!name || !email || !title || !description) {
@@ -29,6 +29,7 @@ export async function POST(request: NextRequest) {
         status: 'open',
         priority: 'medium',
         assigned_to: null,
+        image_urls: image_urls || null,
       })
       .select()
       .single()
